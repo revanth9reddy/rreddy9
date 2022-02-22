@@ -1,0 +1,50 @@
+# -*- coding: utf-8 -*-
+"""
+Spyder Editor
+
+This is a temporary script file.
+"""
+
+#print("Om Sriam Rama Ramayanamah:")
+
+import requests
+import json
+import pandas as pd
+
+url = "https://www.nseindia.com/api/option-chain-indices?symbol=NIFTY"
+headers = {"accept-encoding" : "gzip, deflate, br",
+           "accept-language" : "en-US,en;q=0.9",
+           "referer" : "https://www.nseindia.com/get-quotes/derivatives?symbol=NIFTY",
+           "user-agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.82 Safari/537.36"}
+
+response = requests.get(url, headers = headers).text
+
+data = json.loads(response)
+
+exp_list = data['records']['expiryDates']
+
+exp_date = exp_list[1]
+
+ce = {}
+pe = {}
+n = 0
+m = 0
+for i in data['records']['data']:
+    if i['expiryDate'] == exp_date:
+        try:
+            ce[n]=i['CE']
+            n = n+1
+        except:
+            pass
+        try:
+            pe[m]=i['PE']
+            m = m+1
+        except:
+            pass
+
+ce_df = pd.DataFrame.from_dict(ce).transpose()
+ce_df.columns += "_CE"
+pe_df = pd.DataFrame.from_dict(pe).transpose()
+pe_df.columns += "_PE"
+
+print(exp_date)
